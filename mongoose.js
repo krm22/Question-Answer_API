@@ -51,20 +51,31 @@ db.once("open", function() {
             default: "Angela"
         }
     });
-/* This is a prehook designed to attach to the save object and give a dynamic
- animal size input */
-    AnimalSchema.pre('save', function(next){
-      if(this.mass >= 100){
-        this.size = "big";
-      }else if(this.mass >= 5 && this.mass < 100){
-        this.size = "medium";
-      }else {this.size = "small";
-      }
-      next();
+    /* This is a prehook designed to attach to the save object and give a dynamic
+     animal size input */
+    AnimalSchema.pre('save', function(next) {
+        if (this.mass >= 100) {
+            this.size = "big";
+        } else if (this.mass >= 5 && this.mass < 100) {
+            this.size = "medium";
+        } else {
+            this.size = "small";
+        }
+        next();
     })
-    AnimalSchema.statics.findSize = function(size, callback){
-      // this == Animal
-      return this.find({size : size }, callback);
+    AnimalSchema.statics.findSize = function(size, callback) {
+            // this == Animal
+            return this.find({
+                size: size
+            }, callback);
+        }
+        /* Creating an instance method by placing a function on AnimalSchmea
+          method property */
+    AnimalSchema.methods.findSameColor = function(callback) {
+        //this == document
+        return this.model("Animal").find({
+            color: this.color
+        }, callback);
     }
 
 
@@ -104,9 +115,9 @@ db.once("open", function() {
             name: "Gretchen"
         }, {
             type: "wolf",
-            color: "grey",
+            color: "gray",
             mass: 45,
-            name: "Gretchen"
+            name: "Iris"
         },
         elephant,
         animal,
@@ -123,13 +134,18 @@ db.once("open", function() {
         if (err) console.error(err);
         Animal.create(animalData, function(err, animals) {
             if (err) console.error(err);
-            Animal.findSize("medium", function(err, animals) {
-                animals.forEach(function(animal) {
-                    console.log(animal.name + " the " + animal.color +
-                        " " + animal.type + " is a " + animal.size + "-sized animal.");
-                });
-                db.close(function() {
-                    console.log("db connection saved");
+            Animal.findOne({
+                type: "elephant"
+            }, function(err, elephant) {
+                elephant.findSameColor(function(err, animals) {
+                    if (err) console.error(err);
+                    animals.forEach(function(animal) {
+                        console.log(animal.name + " the " + animal.color +
+                            " " + animal.type + " is a " + animal.size + "-sized animal.");
+                    });
+                    db.close(function() {
+                        console.log("db connection saved");
+                    });
                 });
             });
         });
