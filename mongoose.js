@@ -36,7 +36,7 @@ db.once("open", function() {
         },
         size: {
             type: String,
-            default: "small"
+
         },
         color: {
             type: String,
@@ -51,6 +51,17 @@ db.once("open", function() {
             default: "Angela"
         }
     });
+/* This is a prehook designed to attach to the save object and give a dynamic
+ animal size input */
+    AnimalSchema.pre('save', function(next){
+      if(this.mass >= 100){
+        this.size = "big";
+      }else if(this.mass >= 5 && this.mass < 100){
+        this.size = "medium";
+      }else {this.size = "small";
+      }
+      next();
+    })
 
     /* Now we use the AnimalSchema to create a mongoose object called a model
     which creates and saves our document objects */
@@ -61,7 +72,6 @@ db.once("open", function() {
     function , mongo does not know about this object yet as it hasnt been saved */
     let elephant = new Animal({
         type: "elephant",
-        size: "big",
         color: "gray",
         mass: 6000,
         name: "Lawrence"
@@ -71,14 +81,31 @@ db.once("open", function() {
 
     /* This is to test if the missing key picks up the value of the default*/
     let whale = new Animal({
-      type: "whale",
-      size: "big",
-      mass: 190500,
-      name: "Fig"
+        type: "whale",
+        mass: 190500,
+        name: "Fig"
     });
 
-
-
+    let animalData = [{
+            type: "mouse",
+            color: "grey",
+            mass: 0.035,
+            name: "Marvin"
+        }, {
+            type: "nutria",
+            color: "brown",
+            mass: 6.35,
+            name: "Gretchen"
+        }, {
+            type: "wolf",
+            color: "grey",
+            mass: 45,
+            name: "Gretchen"
+        },
+        elephant,
+        animal,
+        whale
+    ];
     /* Using the animals models remove method to empty the animals document
      in mongo db */
     Animal.remove({}, function(err) {
@@ -87,24 +114,18 @@ db.once("open", function() {
             empty the collection before saving the elephant and the default
             animal and the whale which should inherit the value of the default animal
             due to missing schema key value pair. (This is a pyramid of doom.) */
-        if (err)console.error(err);
-        elephant.save(function(err) {
+        if (err) console.error(err);
+        Animal.create(animalData, function(err, animals) {
             if (err) console.error(err);
-            animal.save(function(err) {
-                if (err) console.error(err);
-                whale.save(function(err){
-                  if (err) console.error(err);
-                  Animal.find({size:"big"}, function(err, animals){
-                    animals.forEach(function(animal){
-                        console.log(animal.name + " the " + animal.color +
-                            " " + animal.type);
-                    });
-                    db.close(function() {
-                      console.log("db connection saved");
-                  });
+            Animal.find({}, function(err, animals) {
+                animals.forEach(function(animal) {
+                    console.log(animal.name + " the " + animal.color +
+                        " " + animal.type + " is a " + animal.size + "-sized animal.");
                 });
-             });
-         });
-      });
-   });
+                db.close(function() {
+                    console.log("db connection saved");
+                });
+            });
+        });
+    });
 });
