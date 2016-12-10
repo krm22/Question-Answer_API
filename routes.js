@@ -53,29 +53,37 @@ router.put("/:qID/answers/:aID", function(req, res){
   res.json({
       response: "You sent me a PUT Request to /answers",
       questionsId: req.params.qID,
-      anwsersID: req.params.aID,
+      anwsersId: req.params.aID,
       body: req.body
   });
 })
 
 //DELETE /questions/:qID/answers/:aID
 //Delete a specific answer
-router.delete("/:qID/answers/:aID", function(req, res){
+router.delete("/:qID/answers/:aID", function(req, res, next){
   res.json({
       response: "You sent me DELETE Request to /answers",
       questionsId: req.params.qID,
-      anwsersID: req.params.aID
+      anwsersId: req.params.aID
   });
 })
 
 //POST /questions/:qID/answers/:aID/vote-up
 //POST /questions/:qID/answers/:aID/vote-down
 //Vote on a specific answer
-router.post("/:qID/answers/:aID/vote-:dir", function(req, res){
+router.post("/:qID/answers/:aID/vote-:dir", function(req, res, next){
+  if(req.params.dir.search(/^(up|down)$/) === -1){
+        let err = new Error("Not Found");
+        err.status = 404;
+        next(err);
+    }else{
+        next();
+    }
+}, function(req, res){
   res.json({
       response: "You sent me POST Request to /vote-" + req.params.dir,
       questionsId: req.params.qID,
-      anwsersID: req.params.aID,
+      anwsersId: req.params.aID,
       vote:  req.params.dir
   });
 })
