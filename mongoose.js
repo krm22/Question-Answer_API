@@ -62,6 +62,12 @@ db.once("open", function() {
       }
       next();
     })
+    AnimalSchema.statics.findSize = function(size, callback){
+      // this == Animal
+      return this.find({size : size }, callback);
+    }
+
+
 
     /* Now we use the AnimalSchema to create a mongoose object called a model
     which creates and saves our document objects */
@@ -117,7 +123,7 @@ db.once("open", function() {
         if (err) console.error(err);
         Animal.create(animalData, function(err, animals) {
             if (err) console.error(err);
-            Animal.find({}, function(err, animals) {
+            Animal.findSize("medium", function(err, animals) {
                 animals.forEach(function(animal) {
                     console.log(animal.name + " the " + animal.color +
                         " " + animal.type + " is a " + animal.size + "-sized animal.");
