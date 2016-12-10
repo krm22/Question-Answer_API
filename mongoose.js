@@ -1,28 +1,7 @@
 'use strict'
 
 
-/* requiring the mongoose package after  installation and giving it the variable
-    mongoose */
-let mongoose = require("mongoose");
 
-/* Using the mongoose connect method to connect to mongodb server. */
-mongoose.connect("mongodb://localhost:27017/sandbox");
-
-/* db now monitors the states of request through the connection object
-  of mongoose, it will now emit events related to the db and when they occur
-   we can handle them. */
-let db = mongoose.connection;
-
-/* listening for the error event with the on method error handler */
-db.on("error", function() {
-    console.error("connection error:", err);
-});
-
-/* listening for the open event, it is emmited whent the connection to mongo is
-ready to go, fires handler just the first time an event occurs */
-db.once("open", function() {
-    console.log("db connection sucessful");
-    // All database communication goes here
 
     /* create a Schema ny referencing the schema construtor from the
      mongoose object. */
