@@ -1,6 +1,10 @@
 'use strict'
 
-
+    /*
+        THIS FILE SERVED A A TESTING GROUND FOR CONNECTING THE APP,
+        EXPRESS SERVER AND ROUTERS, MONGOOSE AND MONDB TOGETHER. THE ACTUAL FILE
+        THE APP USES IS MODEL.JS.
+  */
 
 
     /* create a Schema ny referencing the schema construtor from the
