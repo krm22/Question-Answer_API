@@ -8,12 +8,12 @@ let express = require("express");
 let router = express.Router();
 
 /* Importing the questions model to connect to the routers to the models */
-let Question = require("./models").Questions;
+let Question = require("./model").Question;
 
 /* prefixing express's params handler because a url id exists, takes two parameters
  the name of the params on the string and a callback function */
-router.params("qID", function(req, res, next, id) {
-    Question.findByID(req.params.qID, function(err, doc) {
+router.param("qID", function(req, res, next, id) {
+    Question.findById(id,function(err, doc){
         if (err) return next(err);
         if(!doc) {
           err = new Error("Not Found");
@@ -23,19 +23,20 @@ router.params("qID", function(req, res, next, id) {
           req.question = doc;
           return next();
     });
-})
+});
 
-router.params("aID", function(req, res, next, id){
+
+router.param("aID", function(req, res, next, id) {
   /* mongoose has a special method on sub docs array called id. The id method
   takes the id of a sub document and returns the sub doc with matching id */
-    req.answer = req.question.anwsers.id(id);
-    if(!req.answser) {
+    req.answer = req.question.answers.id(id);
+    if(!req.answer) {
       err = new Error("Not Found");
       err.status = 404;
       return next(err);
     }
     next();
-});
+  });
 
 
 
@@ -59,30 +60,24 @@ router.get("/", function(req, res, next) {
        mongoose how to handle our response. With the exec property whe can execute
        the function. */
     Question.find({})
-        .sort: {
-            createdAt: -1
-        }
-},
-.exec, (function(err, questions) {
+        .sort({createdAt: -1})
+        .exec(function(err, questions) {
     if (err) return next(err);
     res.json(questions);
+ });
 });
-/*send a response to the client*/
-res.json({
-    response: "You sent me GET a requset"
-});
-});
+
 
 
 //POST /questions
 /* route for creating questions  */
 router.post("/", function(req, res, next) {
    let question = new Question(req.body);
-    quesiton.save(function(err, question) {
+    question.save(function(err, question) {
         if (err) return next(err);
         res.status(201)
         res.json(question);
-    })
+    });
     res.json({
         response: "You sent me a POST Request",
         body: req.body
@@ -94,13 +89,13 @@ router.post("/", function(req, res, next) {
 router.get("/:qID", function(req, res, next) {
     /* Just sending document to the client as the router.params
     object at the top of the page is handling the search and errors */
-      res.json(doc);
+      res.json(req.question);
     });
-});
+
 
 
 //POST /questions/:id/answers
-/* route for creating questions */
+/* route for creating answers */
 router.post("/:qID/answers", function(req, res, next) {
  /* After getting the ref to the preloaded question we push the object literal
   to the document we want to add */
@@ -108,19 +103,15 @@ router.post("/:qID/answers", function(req, res, next) {
    /*Mongoose creates the doc for us,we call save on the question doc. */
    req.question.save(function(err, question) {
        if (err) return next(err);
-       res.status(201)
+       res.status(201);
        res.json(question);
-   })
-    res.json({
-        response: "You sent me a POST Request to /answers",
-        questionsId: req.params.qID,
-        body: req.body
-    });
+   });
 });
+
 
 //Put /questions/:qID/answers/:aID
 //Edit a specific answer
-router.put("/:qID/answers/:aID", function(req, res) {
+router.put("/:qID/answers/:aID", function(req, res, next) {
   /* upadte object contains the things we want to modify in the req.body
    the a callback function to fire up the db for saving*/
     req.answer.update(req.body, function(err, result){

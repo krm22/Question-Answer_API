@@ -11,8 +11,7 @@ let routes = require("./routes");
 
 let jparse = require("body-parser").json;
 /* requiring automated logger*/
-let logger = require("morgan")
-
+let logger = require("morgan");
 /* REGERISTING MIDDLEWARE */
 
 app.use(logger("dev"));

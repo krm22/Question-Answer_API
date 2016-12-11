@@ -2,6 +2,8 @@
 
 let mongoose = require ("mongoose");
 
+
+
 let Schema = mongoose.Schema;
 
 let sortAnswers = function(a, b) {
@@ -9,30 +11,30 @@ let sortAnswers = function(a, b) {
     //0 no change
     // + positve a after b
     if(a.votes == b.votes){
-      return a.updatedAt - b.updatedAt;
+      return b.updatedAt - a.updatedAt;
     }
  return b.votes - a.votes;
-}
+};
 
 let AnswerSchema = new Schema({
   text: String,
   createdAt: {type: Date, default: Date.now},
   updatedAt: {type: Date, default: Date.now},
   votes: {type: Number, default: 0}
-})
+});
 
 /* This instance method must be declared above its parent, wheare it will
   become an array */
-AnswerSchema.methods("update", function (updates, callback){
+AnswerSchema.method("update", function (updates, callback){
     Object.assign(this, updates, {updatedAt: new Date()});
     this.parent().save(callback);
   });
 
-AnswerSchema.methods("vote", function (vote, callback){
+AnswerSchema.method("vote", function (vote, callback){
     if(vote == "up"){
-     this.votes +=1;
+     this.votes += 1;
    }else {
-     this.votes -=1;
+     this.votes -= 1;
    }
    this.parent().save(callback);
 });
