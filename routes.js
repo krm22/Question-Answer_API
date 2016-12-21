@@ -78,10 +78,6 @@ router.post("/", function(req, res, next) {
         res.status(201)
         res.json(question);
     });
-    res.json({
-        response: "You sent me a POST Request",
-        body: req.body
-    });
 });
 
 //GET /questions/:qID
